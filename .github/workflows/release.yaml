@@ -24,13 +24,13 @@ jobs:
         run: |
           nix build .#static-files
           mkdir out
-          cp -r result/* out
+          cp -r result/public out
 
       - name: deploy to pages
         if: success()
         uses: crazy-max/ghaction-github-pages@v3
         with:
           target_branch: gh-pages
-          build_dir: out
+          build_dir: out/public
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
