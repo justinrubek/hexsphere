@@ -1,0 +1,13 @@
+[package]
+name = "hexasphere_organized"
+version.workspace = true
+edition.workspace = true
+
+[features]
+algorithms = ["pathfinding"]
+
+[dependencies]
+arrayvec = "0.7.2"
+bevy = "0.13"
+glam = "0.28.0"
+pathfinding = { version = "3.0.12", optional = true }
