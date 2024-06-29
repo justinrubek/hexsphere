@@ -1,7 +1,7 @@
 //! Example usage: https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=6ee9f10224131656ea652f52718df8cf
 
 use arrayvec::ArrayVec;
-use bevy::utils::Instant;
+use bevy::{ecs::system::Resource, utils::Instant};
 use glam::Vec3A;
 use std::cmp::Ordering;
 use std::collections::hash_map::Entry;
@@ -382,7 +382,7 @@ impl Chunked {
 /// This does not deal with geometry at all,
 /// however the algorithms in its impl allow you
 /// to tie that into its creation.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Resource)]
 pub struct Hexasphere<T> {
     inner: Chunked,
     top: T,

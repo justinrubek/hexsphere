@@ -22,6 +22,7 @@ fn trio(mut a: u32, mut b: u32, mut c: u32) -> UnorderedTrio {
     UnorderedTrio(a, b, c)
 }
 
+#[derive(Debug)]
 pub struct GeometryData {
     pub points: Vec<Vec3A>,
     pub normals: Vec<Vec3A>,

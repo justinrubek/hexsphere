@@ -9,6 +9,7 @@ use bevy::{
     },
     window::CursorGrabMode,
 };
+use hexasphere_organized::Coordinate;
 
 fn setup_sphere_object(
     mut commands: Commands,
@@ -22,7 +23,7 @@ fn setup_sphere_object(
 
     let geometry_points = geometry.raw_points();
 
-    let (_, new_geometry, color_data) = hexasphere_organized::Hexasphere::make_and_dual(
+    let (organized, new_geometry, color_data) = hexasphere_organized::Hexasphere::make_and_dual(
         SUBDIV,
         &indices,
         geometry_points,
@@ -31,8 +32,19 @@ fn setup_sphere_object(
                 .map(|_| [1.0; 4])
                 .collect::<Vec<_>>()
         },
-        |index, edges, _coord, _geometry_data, color_data| {
-            color_data[index as usize] = [1.0, 0.0, 1.0, 1.0];
+        |index, edges, coord, geometry_data, color_data| {
+            let color = match coord {
+                Coordinate::Top => Vec4::new(1.0, 1.0, 0.0, 1.0),
+                Coordinate::Bottom => Vec4::new(1.0, 0.0, 1.0, 1.0),
+                Coordinate::Inside { chunk, short, long } => {
+                    let chunk = f32::from(chunk);
+                    let short = short as f32;
+                    let long = long as f32;
+                    Vec4::new(chunk, short, long, 1.0).normalize()
+                }
+            };
+            // println!("index: {index}, coord: {coord:?} color: {color:?}, edges: {edges:?}");
+            color_data[index as usize] = color.into();
             (index, edges)
         },
     );
@@ -72,7 +84,7 @@ fn setup_sphere_object(
         VertexAttributeValues::Float32x4(color_data),
     );
 
-    let scaling_factor = 100.0;
+    let scaling_factor = 1000.0;
     let mut transform = Transform::from_xyz(0.0, 0.0, 0.0);
     transform.scale = Vec3::new(scaling_factor, scaling_factor, scaling_factor);
 
@@ -88,6 +100,13 @@ fn setup_sphere_object(
     });
 
     // Now use `organized` to manage coordinates, etc.
+    // Now use `organized` to manage coordinates, etc.
+    let hex = organized.get_many([Coordinate::Top]);
+    let first = hex.first().unwrap();
+    println!("{:?}", first);
+
+    // save access to it for later
+    commands.insert_resource(organized);
 }
 
 fn setup(
@@ -96,7 +115,7 @@ fn setup(
     mut _materials: ResMut<Assets<StandardMaterial>>,
 ) {
     // Start the player away from the sphere
-    let starting_position = Vec3::new(0.0, 0.0, 110.0);
+    let starting_position = Vec3::new(0.0, 0.0, 1010.0);
     commands.spawn(Camera3dBundle {
         transform: Transform::from_xyz(
             starting_position.x,
@@ -133,7 +152,7 @@ fn camera_movement(
         if keyboard_input.pressed(KeyCode::KeyE) {
             direction -= transform.rotation * Vec3::Y;
         }
-        transform.translation += direction * 0.1;
+        transform.translation += direction * 5.;
     }
 }
 
@@ -143,8 +162,8 @@ fn camera_look(
 ) {
     for event in mouse_events.read() {
         for (mut transform, _) in &mut query {
-            transform.rotation *= Quat::from_rotation_y(-event.delta.x * 0.01);
-            transform.rotation *= Quat::from_rotation_x(-event.delta.y * 0.01);
+            transform.rotation *= Quat::from_rotation_y(-event.delta.x * 0.001);
+            transform.rotation *= Quat::from_rotation_x(-event.delta.y * 0.001);
         }
     }
 }
