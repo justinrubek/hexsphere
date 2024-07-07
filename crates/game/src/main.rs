@@ -181,6 +181,22 @@ fn grab_mouse(mut windows: Query<&mut Window>, mouse: Res<ButtonInput<MouseButto
     }
 }
 
+pub fn close_on_esc(
+    mut commands: Commands,
+    focused_windows: Query<(Entity, &Window)>,
+    input: Res<ButtonInput<KeyCode>>,
+) {
+    for (window, focus) in focused_windows.iter() {
+        if !focus.focused {
+            continue;
+        }
+
+        if input.just_pressed(KeyCode::Escape) {
+            commands.entity(window).despawn();
+        }
+    }
+}
+
 fn main() {
     let mut app = App::new();
     app.add_plugins(DefaultPlugins)
@@ -189,6 +205,6 @@ fn main() {
         .add_systems(Update, (camera_movement, camera_look))
         .add_systems(Update, grab_mouse);
     #[cfg(not(target_arch = "wasm32"))]
-    app.add_systems(Update, bevy::window::close_on_esc);
+    app.add_systems(Update, close_on_esc);
     app.run();
 }

@@ -1,6 +1,6 @@
 [dependencies]
-bevy = "0.13"
-hexasphere = "13.1.0"
+bevy = "0.14"
+hexasphere = "14.0.0"
 hexasphere_organized = { path = "../hex-util" }
 
 [lints]
